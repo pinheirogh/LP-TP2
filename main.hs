@@ -24,6 +24,17 @@ instance Show Cuidado where
       ++ m
   show (Medicar m) = "Ministrar medicamento: " ++ m
 
+-- instance Eq Cuidado where
+--   (Comprar m q) == (Comprar m' q') = m == m' && q == q'
+--   (Medicar m) == (Medicar m') = m == m'
+--   _ == _ = False
+
+-- instance Ord Cuidado where
+--   compare (Comprar m q) (Comprar m' q') = compare (m, q) (m', q')
+--   compare (Medicar m) (Medicar m') = compare m m'
+--   compare _ _ = EQ
+
+
 med1 :: Medicamento
 med1 = "Adera"
 
@@ -209,18 +220,51 @@ planoValido :: PlanoMedicamento -> Bool
 planoValido [] = True
 planoValido plano = listaOrdenada (map fst plano) && all listaOrdenada (map snd plano)
 
--- Questão 6
--- plantaoValido :: Plantao -> Bool
--- plantaoValido [] = True
--- plantaoValido plantao = listaOrdenada (map fst plantao) && all listaOrdenada (map (map (\(Medicar m) -> m)) (map (filter medicar) (map snd plantao))) &&  where 
---     medicar (Medicar _) = True
---     medicar _ = False
 
---     comprar (Comprar _ _) = True
---     comprar _ = False
-    
+-- Questão 6
+
+-- a = [x | x@(Comprar _ _) <- map head (map snd plantao2)]
+-- [isMedicar y | y <- (map snd plantao2)]
+-- [map isMedicar y | y <- (map snd plantao2)]
+-- [y | y <- (map snd plantao2), all isMedicar y]
+-- map(map(\(Medicar m) -> m)) [y | y <- (map snd plantaoInvalido3), all isMedicar y]
+
+isMedicar :: Cuidado -> Bool
+isMedicar (Medicar _) = True
+isMedicar _ = False
+
+isComprar :: Cuidado -> Bool
+isComprar (Comprar _ _) = True
+isComprar _ = False
+
+stringMatchesStringList :: String -> [String] -> Bool
+stringMatchesStringList _ [] = False
+stringMatchesStringList string (x:xs) = (string == x) || stringMatchesStringList string xs
+
+stringListMatchesStringList :: [String] -> [String] -> Bool
+stringListMatchesStringList [] _ = False
+stringListMatchesStringList x y = 
+  if stringMatchesStringList (head x) y 
+    then True 
+  else stringListMatchesStringList (tail x) y
+
+listOfStringListMatchesListOfStringList :: [[String]] -> [[String]] -> Bool
+listOfStringListMatchesListOfStringList [] [] = False
+listOfStringListMatchesListOfStringList x y = 
+  if stringListMatchesStringList (head x) (head y) 
+    then True 
+  else listOfStringListMatchesListOfStringList (tail x) (tail y)
+
+
+plantaoValido :: Plantao -> Bool
+plantaoValido [] = True
+plantaoValido plantao = listaOrdenada (map fst plantao) && all listaOrdenada listaMedicarFiltrada && not (listOfStringListMatchesListOfStringList listaMedicarFiltrada listaComprarFiltrada)
+  where listaMedicarFiltrada = map(map(\(Medicar m) -> m)) [(filter isMedicar) y | y <- (map snd plantao)]
+        listaComprarFiltrada = map(map(\(Comprar m q) -> m)) [(filter isComprar) y | y <- (map snd plantao)] 
+
 -- Questão 7
-geraPlanoReceituario :: Receituario -> PlanoMedicamento
+
+-- geraPlanoReceituario :: Receituario -> PlanoMedicamento
 
 
 -- Questão 8
