@@ -34,7 +34,6 @@ instance Show Cuidado where
 --   compare (Medicar m) (Medicar m') = compare m m'
 --   compare _ _ = EQ
 
-
 med1 :: Medicamento
 med1 = "Adera"
 
@@ -255,7 +254,6 @@ listOfStringListMatchesListOfStringList x y =
     then True 
   else listOfStringListMatchesListOfStringList (tail x) (tail y)
 
-
 plantaoValido :: Plantao -> Bool
 plantaoValido [] = True
 plantaoValido plantao = listaOrdenada (map fst plantao) && all listaOrdenada listaMedicarFiltrada && not (listOfStringListMatchesListOfStringList listaMedicarFiltrada listaComprarFiltrada)
@@ -263,8 +261,32 @@ plantaoValido plantao = listaOrdenada (map fst plantao) && all listaOrdenada lis
         listaComprarFiltrada = map(map(\(Comprar m q) -> m)) [(filter isComprar) y | y <- (map snd plantao)] 
 
 -- Questão 7
+eliminarDuplicidades :: [Horario] -> [Horario]
+eliminarDuplicidades [] = []
+eliminarDuplicidades [x] = [x]
+eliminarDuplicidades (x:y:xs) =
+  if x == y
+    then eliminarDuplicidades (y:xs)
+  else x : eliminarDuplicidades (y:xs)
 
--- geraPlanoReceituario :: Receituario -> PlanoMedicamento
+ordenarListaHorarios :: [Horario] -> [Horario]
+ordenarListaHorarios [] = []
+ordenarListaHorarios [x] = [x]
+ordenarListaHorarios (x:xs) = ordenarListaHorarios [y | y <- xs, y < x] ++ [x] ++ ordenarListaHorarios [y | y <- xs, y >= x] 
+
+concatenarHorarios :: [Horario] -> [Horario] -> [Horario]
+concatenarHorarios [] _ = []
+concatenarHorarios x y = y ++ x
+
+listaHorarios :: [[Horario]] -> [Horario] -> [Horario]
+listaHorarios [] _ = []
+listaHorarios (x:xs) y = eliminarDuplicidades . ordenarListaHorarios $ concatenarHorarios x y ++ listaHorarios xs y
+-- listaHorarios (x:xs) y = eliminarDuplicidades(ordenarListaHorarios(concatenarHorarios x y ++ listaHorarios xs y))
+
+-- geraReceituarioPlano :: PlanoMedicamento -> Receituario
+geraPlanoReceituario :: Receituario -> [Horario]
+geraPlanoReceituario receituario = listaHorarios (map snd receituario) []
+-- [med | (med, horariosX) <- receituario, (Implementar função)horarioY in horarioX]
 
 
 -- Questão 8
