@@ -236,14 +236,15 @@ isComprar :: Cuidado -> Bool
 isComprar (Comprar _ _) = True
 isComprar _ = False
 
-stringMatchesStringList :: String -> [String] -> Bool
-stringMatchesStringList _ [] = False
-stringMatchesStringList string (x:xs) = (string == x) || stringMatchesStringList string xs
+-- SUBSTITUIDO POR FUNÇÃO ELEM
+-- stringMatchesStringList :: String -> [String] -> Bool
+-- stringMatchesStringList _ [] = False
+-- stringMatchesStringList string (x:xs) = (string == x) || stringMatchesStringList string xs
 
 stringListMatchesStringList :: [String] -> [String] -> Bool
 stringListMatchesStringList [] _ = False
 stringListMatchesStringList x y = 
-  if stringMatchesStringList (head x) y 
+  if elem (head x) y 
     then True 
   else stringListMatchesStringList (tail x) y
 
@@ -282,6 +283,15 @@ listaHorarios :: [[Horario]] -> [Horario] -> [Horario]
 listaHorarios [] _ = []
 listaHorarios (x:xs) y = eliminarDuplicidades . ordenarListaHorarios $ concatenarHorarios x y ++ listaHorarios xs y
 -- listaHorarios (x:xs) y = eliminarDuplicidades(ordenarListaHorarios(concatenarHorarios x y ++ listaHorarios xs y))
+
+-- elementoEstaNaLista :: Eq a -> [a] -> Bool
+-- elementoEstaNaLista _ [] = False
+-- elementoEstaNaLista elemento (x:xs) = 
+--   if elemento == x
+--     then True
+--   else elementoEstaNaLista elemento xs
+
+-- elem :: Eq a => a -> [a] -> Bool
 
 -- geraReceituarioPlano :: PlanoMedicamento -> Receituario
 geraPlanoReceituario :: Receituario -> [Horario]
