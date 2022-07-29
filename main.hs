@@ -1,3 +1,5 @@
+import Data.List
+
 type Medicamento = String
 
 type Quantidade = Int
@@ -297,6 +299,34 @@ listaHorarios (x:xs) y = eliminarDuplicidades . ordenarListaHorarios $ concatena
 geraPlanoReceituario :: Receituario -> [Horario]
 geraPlanoReceituario receituario = listaHorarios (map snd receituario) []
 -- [med | (med, horariosX) <- receituario, (Implementar função)horarioY in horarioX]
+-- [med | (med, horariosX) <- receituario, horarioIndv <- horariosY, horarioIndv `elem` horarioX]
+-- map(map(\elem y c -> y)) horariosX
+-- a = geraPlanoReceituario receituario2
+-- b = [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
+-- [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
+
+horarioInListaHorarios :: Horario -> [Horario] -> Bool
+horarioInListaHorarios _ [] = False
+horarioInListaHorarios horario listaHorarios = 
+  if elem horario listaHorarios
+    then True
+  else horarioInListaHorarios horario (tail listaHorarios)
+
+-- ordenar lista de tuplas por primeiro elemento
+ordenarListaTuplas :: Ord a => [(a, b)] -> [(a, b)]
+ordenarListaTuplas [] = []
+ordenarListaTuplas [x] = [x]
+ordenarListaTuplas (x:xs) = ordenarListaTuplas [y | y <- xs, fst y < fst x] ++ [x] ++ ordenarListaTuplas [y | y <- xs, fst y >= fst x]
+
+-- agrupar lista de tuplas por primeiro elemento sem usar fst e snd
+agruparListaTuplas :: (Eq a, Ord a) => [(a, b)] -> [(a, [b])]
+agruparListaTuplas [] = []
+agruparListaTuplas [x] = [(fst x, [snd x])]
+agruparListaTuplas (x:xs) =
+  if fst x == fst(head xs)
+    then (fst x, [snd x] ++ [snd (head xs)]) : agruparListaTuplas (tail xs)
+  else (fst x, [snd x]) : agruparListaTuplas xs
+
 
 
 -- Questão 8
