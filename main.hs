@@ -263,7 +263,19 @@ plantaoValido plantao = listaOrdenada (map fst plantao) && all listaOrdenada lis
   where listaMedicarFiltrada = map(map(\(Medicar m) -> m)) [(filter isMedicar) y | y <- (map snd plantao)]
         listaComprarFiltrada = map(map(\(Comprar m q) -> m)) [(filter isComprar) y | y <- (map snd plantao)] 
 
+
+
+
 -- Questão 7
+concatenarHorarios :: [Horario] -> [Horario] -> [Horario]
+concatenarHorarios [] _ = []
+concatenarHorarios x y = y ++ x
+
+ordenarListaHorarios :: [Horario] -> [Horario]
+ordenarListaHorarios [] = []
+ordenarListaHorarios [x] = [x]
+ordenarListaHorarios (x:xs) = ordenarListaHorarios [y | y <- xs, y < x] ++ [x] ++ ordenarListaHorarios [y | y <- xs, y >= x] 
+
 eliminarDuplicidades :: [Horario] -> [Horario]
 eliminarDuplicidades [] = []
 eliminarDuplicidades [x] = [x]
@@ -272,38 +284,10 @@ eliminarDuplicidades (x:y:xs) =
     then eliminarDuplicidades (y:xs)
   else x : eliminarDuplicidades (y:xs)
 
-ordenarListaHorarios :: [Horario] -> [Horario]
-ordenarListaHorarios [] = []
-ordenarListaHorarios [x] = [x]
-ordenarListaHorarios (x:xs) = ordenarListaHorarios [y | y <- xs, y < x] ++ [x] ++ ordenarListaHorarios [y | y <- xs, y >= x] 
-
-concatenarHorarios :: [Horario] -> [Horario] -> [Horario]
-concatenarHorarios [] _ = []
-concatenarHorarios x y = y ++ x
-
 listaHorarios :: [[Horario]] -> [Horario] -> [Horario]
 listaHorarios [] _ = []
 listaHorarios (x:xs) y = eliminarDuplicidades . ordenarListaHorarios $ concatenarHorarios x y ++ listaHorarios xs y
 -- listaHorarios (x:xs) y = eliminarDuplicidades(ordenarListaHorarios(concatenarHorarios x y ++ listaHorarios xs y))
-
--- elementoEstaNaLista :: Eq a -> [a] -> Bool
--- elementoEstaNaLista _ [] = False
--- elementoEstaNaLista elemento (x:xs) = 
---   if elemento == x
---     then True
---   else elementoEstaNaLista elemento xs
-
--- elem :: Eq a => a -> [a] -> Bool
-
--- geraReceituarioPlano :: PlanoMedicamento -> Receituario
-geraPlanoReceituario :: Receituario -> [Horario]
-geraPlanoReceituario receituario = listaHorarios (map snd receituario) []
--- [med | (med, horariosX) <- receituario, (Implementar função)horarioY in horarioX]
--- [med | (med, horariosX) <- receituario, horarioIndv <- horariosY, horarioIndv `elem` horarioX]
--- map(map(\elem y c -> y)) horariosX
--- a = geraPlanoReceituario receituario2
--- b = [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
--- [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
 
 horarioInListaHorarios :: Horario -> [Horario] -> Bool
 horarioInListaHorarios _ [] = False
@@ -326,6 +310,39 @@ agruparListaTuplas (x:xs) =
   if fst x == fst(head xs)
     then (fst x, [snd x] ++ [snd (head xs)]) : agruparListaTuplas (tail xs)
   else (fst x, [snd x]) : agruparListaTuplas xs
+
+-- elementoEstaNaLista :: Eq a -> [a] -> Bool
+-- elementoEstaNaLista _ [] = False
+-- elementoEstaNaLista elemento (x:xs) = 
+--   if elemento == x
+--     then True
+--   else elementoEstaNaLista elemento xs
+
+-- elem :: Eq a => a -> [a] -> Bool
+
+-- geraReceituarioPlano :: PlanoMedicamento -> Receituario
+-- geraPlanoReceituario :: Receituario -> [Horario]
+-- geraPlanoReceituario receituario = 
+  
+--   a = listaHorarios (map snd receituario) []
+--   b = [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
+--   c = b
+
+
+geraPlanoReceituario :: Receituario -> [(Horario, [Medicamento])]
+geraPlanoReceituario receituario = agruparListaTuplas . ordenarListaTuplas $ listaTuplas 
+  where listaTuplas = [(horarioIndv, med) | (med, horariosX) <- receituario, horarioIndv <- listaHorariosFiltrada, horarioIndv `elem` horariosX]
+        listaHorariosFiltrada = listaHorarios (map snd receituario) []
+  
+  -- agruparListaTuplas (ordenarListaTuplas ([(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- (listaHorarios (map snd receituario) []), horarioIndv `elem` horariosX]))
+
+-- [med | (med, horariosX) <- receituario, (Implementar função)horarioY in horarioX]
+-- [med | (med, horariosX) <- receituario, horarioIndv <- horariosY, horarioIndv `elem` horarioX]
+-- map(map(\elem y c -> y)) horariosX
+-- a = geraPlanoReceituario receituario2
+-- b = agruparListaTuplas . ordenarListaTuplas $ [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
+-- [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
+
 
 
 
