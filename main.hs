@@ -179,12 +179,21 @@ plantaoInvalido4 =
 
 
 -- Questão 1
+medicamentoNoEstoque :: Medicamento -> EstoqueMedicamentos -> Bool
+medicamentoNoEstoque med [] = False
+medicamentoNoEstoque med (x:xs) = 
+  if med == (fst x) 
+    then True 
+  else medicamentoNoEstoque med xs
+
 comprarMedicamento :: Medicamento -> Quantidade -> EstoqueMedicamentos -> EstoqueMedicamentos
 comprarMedicamento medicamento quantidade [] = (medicamento, quantidade) : []
 comprarMedicamento medicamento quantidade ((x_med, y_qtd):xs) =
-    if medicamento == x_med
-        then (x_med, y_qtd + quantidade):xs
-    else (x_med, y_qtd):comprarMedicamento medicamento quantidade xs
+  if (medicamentoNoEstoque medicamento ((x_med, y_qtd):xs)) 
+    then (if medicamento == x_med 
+            then (x_med, y_qtd + quantidade):xs 
+          else (x_med, y_qtd):comprarMedicamento medicamento quantidade xs) 
+  else (medicamento, quantidade):(x_med, y_qtd):xs
 
 -- Questão 2
 tomarMedicamento :: Medicamento -> EstoqueMedicamentos -> Maybe EstoqueMedicamentos
@@ -264,8 +273,6 @@ plantaoValido plantao = listaOrdenada (map fst plantao) && all listaOrdenada lis
         listaComprarFiltrada = map(map(\(Comprar m q) -> m)) [(filter isComprar) y | y <- (map snd plantao)] 
 
 
-
-
 -- Questão 7
 concatenarHorarios :: [Horario] -> [Horario] -> [Horario]
 concatenarHorarios [] _ = []
@@ -342,8 +349,6 @@ geraPlanoReceituario receituario = agruparListaTuplas . ordenarListaTuplas $ lis
 -- a = geraPlanoReceituario receituario2
 -- b = agruparListaTuplas . ordenarListaTuplas $ [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
 -- [(horarioIndv, med) | (med, horariosX) <- receituario2, horarioIndv <- a, horarioIndv `elem` horariosX]
-
-
 
 
 -- Questão 8
