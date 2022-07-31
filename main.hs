@@ -336,7 +336,7 @@ agruparListaTuplas (x:xs) =
 --   c = b
 
 
-geraPlanoReceituario :: Receituario -> [(Horario, [Medicamento])]
+geraPlanoReceituario :: Receituario -> PlanoMedicamento
 geraPlanoReceituario receituario = agruparListaTuplas . ordenarListaTuplas $ listaTuplas 
   where listaTuplas = [(horarioIndv, med) | (med, horariosX) <- receituario, horarioIndv <- listaHorariosFiltrada, horarioIndv `elem` horariosX]
         listaHorariosFiltrada = listaHorarios (map snd receituario) []
@@ -352,6 +352,50 @@ geraPlanoReceituario receituario = agruparListaTuplas . ordenarListaTuplas $ lis
 
 
 -- Questão 8
+eliminarDuplicidadesMedicamentos :: [Medicamento] -> [Medicamento]
+eliminarDuplicidadesMedicamentos [] = []
+eliminarDuplicidadesMedicamentos [x] = [x]
+eliminarDuplicidadesMedicamentos (x:y:xs) =
+  if x == y
+    then eliminarDuplicidadesMedicamentos (y:xs)
+  else x : eliminarDuplicidadesMedicamentos (y:xs)
+
+ordenarListaMedicamentos :: [Medicamento] -> [Medicamento]
+ordenarListaMedicamentos [] = []
+ordenarListaMedicamentos [x] = [x]
+ordenarListaMedicamentos (x:xs) = ordenarListaMedicamentos [y | y <- xs, y < x] ++ [x] ++ ordenarListaMedicamentos [y | y <- xs, y >= x]  
+
+concatenarMedicamentos :: [[Medicamento]] -> [Medicamento]
+concatenarMedicamentos [] = []
+concatenarMedicamentos (x:xs) = x ++ concatenarMedicamentos xs
+
+ordenarListaTuplasMedicamentos :: [(Medicamento, [Horario])] -> [(Medicamento, [Horario])]
+ordenarListaTuplasMedicamentos [] = []
+ordenarListaTuplasMedicamentos [x] = [x]
+ordenarListaTuplasMedicamentos (x:xs) = ordenarListaTuplasMedicamentos [y | y <- xs, fst y < fst x] ++ [x] ++ ordenarListaTuplasMedicamentos [y | y <- xs, fst y >= fst x] 
+
+agruparListaTuplasMedicamentos :: (Eq a, Ord a) => [(a, [b])] -> [(a, [b])]
+agruparListaTuplasMedicamentos [] = []
+agruparListaTuplasMedicamentos [x] = [x]
+agruparListaTuplasMedicamentos (x:xs) =
+  if fst x == fst(head xs)
+    then (fst x, snd x ++ snd (head xs)) : agruparListaTuplasMedicamentos (tail xs)
+  else (fst x, snd x) : agruparListaTuplasMedicamentos xs
+
+-- a = [med | (horario, med) <- plano1]
+-- b = eliminarDuplicidadesMedicamentos. concatenarMedicamentos a  
+-- c = [(medicamento, horario) | (horario, listaMed) <- plano1, medicamento <- b, elem medicamento listaMed]
+-- d = ordenarListaTuplasMedicamentos c
+
+geraReceituarioPlano :: PlanoMedicamento -> Receituario
+geraReceituarioPlano plano = agruparListaTuplasMedicamentos . agruparListaTuplasMedicamentos . ordenarListaTuplasMedicamentos $ listaTuplasMedicamentos 
+  where listaTuplasMedicamentos = [(medicamento, [horario]) | (horario, listaMed) <- plano, medicamento <- listaMedicamentosFiltrada, elem medicamento listaMed] 
+        listaMedicamentosFiltrada = eliminarDuplicidadesMedicamentos . ordenarListaMedicamentos . concatenarMedicamentos $ listaMedicamentosBruta
+        listaMedicamentosBruta = [listaMedicamentos | (horario, listaMedicamentos) <- plano] 
+
+
+
+
 -- Questão 9 
 -- Questão 10
 -- Questão 11
